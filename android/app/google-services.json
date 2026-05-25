@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "603439656909",
+    "project_id": "ungdungnhantin-nhom3",
+    "storage_bucket": "ungdungnhantin-nhom3.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:603439656909:android:f6959128c83ea3b783de84",
+        "android_client_info": {
+          "package_name": "vn.edu.ntu.nhom3.ung_dung_nhan_tin_nhom3"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDJJNlY0kNtMRCvJVfywWUqTxzTuo5KVgo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
