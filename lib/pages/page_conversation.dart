@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:supabase_auth_ui/supabase_auth_ui.dart';
+import '../controllers/conversation_controller.dart';
 
 class PageConversations extends StatelessWidget {
   const PageConversations({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final userId = Supabase.instance.client.auth.currentUser!.id;
+    final controller = ConversationController(); // ← dùng controller
 
     return Scaffold(
       appBar: AppBar(
@@ -19,7 +19,6 @@ class PageConversations extends StatelessWidget {
       ),
       body: Column(
         children: [
-          // Search bar
           Padding(
             padding: const EdgeInsets.fromLTRB(12, 10, 12, 4),
             child: Container(
@@ -32,29 +31,27 @@ class PageConversations extends StatelessWidget {
                 children: [
                   Icon(Icons.search, size: 18, color: Colors.grey),
                   SizedBox(width: 8),
-                  Text('Tìm kiếm cuộc trò chuyện...', style: TextStyle(color: Colors.grey)),
+                  Text(
+                    'Tìm kiếm cuộc trò chuyện...',
+                    style: TextStyle(color: Colors.grey),
+                  ),
                 ],
               ),
             ),
           ),
-
-          // Danh sách
           Expanded(
             child: StreamBuilder<List<Map<String, dynamic>>>(
-              stream: Supabase.instance.client
-                  .from('conversations')
-                  .stream(primaryKey: ['id'])
-                  .order('last_message_at', ascending: false),
+              stream: controller.conversationsStream(), // ← dùng controller
               builder: (context, snapshot) {
                 if (!snapshot.hasData) {
                   return const Center(child: CircularProgressIndicator());
                 }
 
-                // Lọc chỉ hiện conversation có userId trong member_ids
-                final conversations = snapshot.data!.where((c) {
-                  final members = List<String>.from(c['member_ids'] ?? []);
-                  return members.contains(userId);
-                }).toList();
+                // ← dùng controller
+                final conversations = controller.filterConversations(
+                  snapshot.data!,
+                  controller.currentUserId,
+                );
 
                 if (conversations.isEmpty) {
                   return const Center(
@@ -66,7 +63,10 @@ class PageConversations extends StatelessWidget {
                   itemCount: conversations.length,
                   itemBuilder: (context, index) {
                     final conv = conversations[index];
-                    return _ConversationTile(conv: conv, currentUserId: userId);
+                    return _ConversationTile(
+                      conv: conv,
+                      controller: controller, // ← truyền controller xuống
+                    );
                   },
                 );
               },
@@ -79,28 +79,20 @@ class PageConversations extends StatelessWidget {
 }
 
 class _ConversationTile extends StatelessWidget {
-  const _ConversationTile({required this.conv, required this.currentUserId});
+  const _ConversationTile({
+    required this.conv,
+    required this.controller,
+  });
 
   final Map<String, dynamic> conv;
-  final String currentUserId;
-
-  String _formatTime(String? isoString) {
-    if (isoString == null) return '';
-    final dt = DateTime.parse(isoString).toLocal();
-    final now = DateTime.now();
-    final diff = now.difference(dt);
-    if (diff.inMinutes < 60) return '${diff.inMinutes} phút';
-    if (diff.inHours < 24) return '${diff.inHours} giờ';
-    if (diff.inDays == 1) return 'Hôm qua';
-    return '${dt.day}/${dt.month}';
-  }
+  final ConversationController controller;
 
   @override
   Widget build(BuildContext context) {
     final isGroup = conv['is_group'] == true;
     final name = conv['name'] ?? 'Cuộc trò chuyện';
     final lastMsg = conv['last_message'] ?? '';
-    final time = _formatTime(conv['last_message_at']);
+    final time = controller.formatTime(conv['last_message_at']); // ← dùng controller
 
     return ListTile(
       contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
@@ -127,15 +119,11 @@ class _ConversationTile extends StatelessWidget {
         overflow: TextOverflow.ellipsis,
         style: const TextStyle(fontSize: 13),
       ),
-      trailing: Text(time, style: const TextStyle(fontSize: 11, color: Colors.grey)),
-      onTap: () {
-        // Navigator.push(
-        //   context,
-        //   MaterialPageRoute(
-        //     builder: (_) => PageChat(conversationId: conv['id'], title: name),
-        //   ),
-        // );
-      },
+      trailing: Text(
+        time,
+        style: const TextStyle(fontSize: 11, color: Colors.grey),
+      ),
+      onTap: () {},
     );
   }
 }

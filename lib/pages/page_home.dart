@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:supabase_auth_ui/supabase_auth_ui.dart';
 import 'package:ung_dung_nhan_tin_nhom3/pages/page_conversation.dart';
-
+import '../controllers/home_controller.dart';
 import '../helper/color.dart';
 
 class PageHome extends StatefulWidget {
@@ -13,16 +12,7 @@ class PageHome extends StatefulWidget {
 
 class _PageHomeState extends State<PageHome> {
   int _currentIndex = 0;
-
-  String get displayName {
-    final user = Supabase.instance.client.auth.currentUser;
-    return user?.userMetadata?['display_name'] ?? 'Người dùng';
-  }
-
-  String? get avatarUrl {
-    final user = Supabase.instance.client.auth.currentUser;
-    return user?.userMetadata?['avatar_url'];
-  }
+  final _controller = HomeController(); // ← dùng controller
 
   @override
   Widget build(BuildContext context) {
@@ -49,14 +39,12 @@ class _PageHomeState extends State<PageHome> {
   Widget _buildHomePage() {
     return Column(
       children: [
-        // Header: ảnh đại diện + tên
         Container(
           width: double.infinity,
           padding: const EdgeInsets.only(top: 100, bottom: 50),
           color: AppColors.primary,
           child: Column(
             children: [
-              // Avatar
               Container(
                 width: 150,
                 height: 150,
@@ -65,10 +53,10 @@ class _PageHomeState extends State<PageHome> {
                   color: AppColors.primaryLight,
                   border: Border.all(color: Colors.white, width: 3),
                 ),
-                child: avatarUrl != null
+                child: _controller.avatarUrl != null // ← dùng controller
                     ? ClipOval(
                   child: Image.network(
-                    avatarUrl!,
+                    _controller.avatarUrl!,
                     fit: BoxFit.cover,
                   ),
                 )
@@ -80,7 +68,7 @@ class _PageHomeState extends State<PageHome> {
               ),
               const SizedBox(height: 14),
               Text(
-                displayName,
+                _controller.displayName, // ← dùng controller
                 style: const TextStyle(
                   fontSize: 32,
                   fontWeight: FontWeight.w600,
@@ -90,8 +78,7 @@ class _PageHomeState extends State<PageHome> {
             ],
           ),
         ),
-        SizedBox(height: 45,),
-        // Nội dung chính
+        const SizedBox(height: 45),
         Expanded(
           child: Padding(
             padding: const EdgeInsets.all(20),
@@ -111,9 +98,7 @@ class _PageHomeState extends State<PageHome> {
                       child: _menuCard(
                         icon: Icons.people_outline_rounded,
                         label: 'Bạn bè',
-                        onTap: () {
-
-                        },
+                        onTap: () {},
                       ),
                     ),
                   ],
@@ -125,7 +110,9 @@ class _PageHomeState extends State<PageHome> {
                   onTap: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (_) => const PageConversations()),
+                      MaterialPageRoute(
+                        builder: (_) => const PageConversations(),
+                      ),
                     );
                   },
                   fullWidth: true,
@@ -148,10 +135,7 @@ class _PageHomeState extends State<PageHome> {
       onTap: onTap,
       child: Container(
         width: fullWidth ? double.infinity : null,
-        padding: EdgeInsets.symmetric(
-          vertical: fullWidth ? 28 : 28,
-          horizontal: 20,
-        ),
+        padding: const EdgeInsets.symmetric(vertical: 28, horizontal: 20),
         decoration: BoxDecoration(
           color: AppColors.primaryLight,
           borderRadius: BorderRadius.circular(16),
@@ -180,13 +164,11 @@ class _PageHomeState extends State<PageHome> {
     return BottomNavigationBar(
       currentIndex: _currentIndex,
       onTap: (index) => setState(() => _currentIndex = index),
+      type: BottomNavigationBarType.fixed,
       backgroundColor: AppColors.primaryLight,
       selectedItemColor: AppColors.primaryDark,
       unselectedItemColor: AppColors.textMuted,
-      selectedLabelStyle: const TextStyle(
-        fontSize: 14,
-        fontWeight: FontWeight.w600,
-      ),
+      selectedLabelStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
       unselectedLabelStyle: const TextStyle(fontSize: 14),
       elevation: 8,
       items: const [
