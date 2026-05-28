@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:ung_dung_nhan_tin_nhom3/pages/page_conversation.dart';
+import 'package:ung_dung_nhan_tin_nhom3/pages/page_manage_friends.dart';
 import '../controllers/home_controller.dart';
+import 'page_search.dart';
 import '../helper/color.dart';
 
 class PageHome extends StatefulWidget {
@@ -12,7 +14,7 @@ class PageHome extends StatefulWidget {
 
 class _PageHomeState extends State<PageHome> {
   int _currentIndex = 0;
-  final _controller = HomeController(); // ← dùng controller
+  final _controller = HomeController();
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +30,7 @@ class _PageHomeState extends State<PageHome> {
       case 0:
         return _buildHomePage();
       case 1:
-        return const Center(child: Text('Tìm kiếm'));
+        return PageSearch();
       case 2:
         return const Center(child: Text('Cá nhân'));
       default:
@@ -37,91 +39,98 @@ class _PageHomeState extends State<PageHome> {
   }
 
   Widget _buildHomePage() {
-    return Column(
-      children: [
-        Container(
-          width: double.infinity,
-          padding: const EdgeInsets.only(top: 100, bottom: 50),
-          color: AppColors.primary,
-          child: Column(
-            children: [
-              Container(
-                width: 150,
-                height: 150,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: AppColors.primaryLight,
-                  border: Border.all(color: Colors.white, width: 3),
-                ),
-                child: _controller.avatarUrl != null // ← dùng controller
-                    ? ClipOval(
-                  child: Image.network(
-                    _controller.avatarUrl!,
-                    fit: BoxFit.cover,
-                  ),
-                )
-                    : const Icon(
-                  Icons.person_rounded,
-                  size: 75,
-                  color: AppColors.primaryDark,
-                ),
-              ),
-              const SizedBox(height: 14),
-              Text(
-                _controller.displayName, // ← dùng controller
-                style: const TextStyle(
-                  fontSize: 32,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.primaryDark,
-                ),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 45),
-        Expanded(
-          child: Padding(
-            padding: const EdgeInsets.all(20),
+    return SafeArea(
+      child: Column(
+        children: [
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.only(top: 100, bottom: 50),
+            color: AppColors.primary,
             child: Column(
               children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: _menuCard(
-                        icon: Icons.person_outline_rounded,
-                        label: 'Cá nhân',
-                        onTap: () {},
-                      ),
+                Container(
+                  width: 150,
+                  height: 150,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: AppColors.primaryLight,
+                    border: Border.all(color: Colors.white, width: 3),
+                  ),
+                  child: _controller.avatarUrl != null // ← dùng controller
+                      ? ClipOval(
+                    child: Image.network(
+                      _controller.avatarUrl!,
+                      fit: BoxFit.cover,
                     ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: _menuCard(
-                        icon: Icons.people_outline_rounded,
-                        label: 'Bạn bè',
-                        onTap: () {},
-                      ),
-                    ),
-                  ],
+                  )
+                      : const Icon(
+                    Icons.person_rounded,
+                    size: 75,
+                    color: AppColors.primaryDark,
+                  ),
                 ),
-                const SizedBox(height: 16),
-                _menuCard(
-                  icon: Icons.chat_bubble_outline_rounded,
-                  label: 'Cuộc trò chuyện',
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => const PageConversations(),
-                      ),
-                    );
-                  },
-                  fullWidth: true,
+                const SizedBox(height: 14),
+                Text(
+                  _controller.displayName, // ← dùng controller
+                  style: const TextStyle(
+                    fontSize: 32,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.primaryDark,
+                  ),
                 ),
               ],
             ),
           ),
-        ),
-      ],
+          const SizedBox(height: 45),
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _menuCard(
+                          icon: Icons.person_outline_rounded,
+                          label: 'Cá nhân',
+                          onTap: () {},
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: _menuCard(
+                          icon: Icons.people_outline_rounded,
+                          label: 'Bạn bè',
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (_) => const PageManageFriends()),
+                            );
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  _menuCard(
+                    icon: Icons.chat_bubble_outline_rounded,
+                    label: 'Cuộc trò chuyện',
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const PageConversations(),
+                        ),
+                      );
+                    },
+                    fullWidth: true,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
